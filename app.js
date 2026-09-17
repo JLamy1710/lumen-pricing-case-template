@@ -24,7 +24,22 @@ function render(){const p=prices[state.price];p.contribution=contributionFor(p);
  $('scenarioDelta').innerHTML=`<div class="panel-label">CURRENT SCENARIO VS Q2 BASE CASE</div><div class="scenario-compare"><span>Price <b>${money(p.price)}</b></span><span>Acceptance <b>${delta(p.acceptance,base.price.acceptance,'%')}</b></span><span>Payback <b>${delta(Number(payback),base.payback,' mo')}</b></span><span>LTV:CAC <b>${delta(Number(ltvCac),base.ltv,':1')}</b></span></div>`;
  const driver=[['price',Math.abs(p.price-base.price.price)/.4],['channel mix',Math.abs(state.mix-60)/40],['budget',Math.abs(state.budget-120)/60],['timing',Math.abs((state.timing==='Q1 2026'?0:state.timing==='Q2 2026'?1:state.timing==='Q3 2026'?2:3)-1)/2]].sort((a,b)=>b[1]-a[1])[0];
  $('scenarioDriver').innerHTML=`<span class="driver-label">WHY THIS CHANGED</span><span>${driver[1]===0?'No lever has moved from the Q2 base case yet.':'The biggest lever is <b>'+driver[0]+'</b> for this scenario.'}</span>`;
- $('priceChart').innerHTML=prices.map((x,i)=>{const chartContribution=contributionFor(x);return `<div class="bar-group"><div class="bar" style="height:${x.acceptance*2.25}px;background:var(--blue)"><span>${x.acceptance}%</span></div><div class="bar" style="height:${chartContribution*110}px;background:var(--amber)"><span>${money(chartContribution)}</span></div><div class="bar-label">€${x.price.toFixed(2)}</div></div>`}).join('');}
+ $('priceChart').innerHTML=prices.map((x,i)=>{const chartContribution=contributionFor(x);return `<div class="bar-group"><div class="bar" style="height:${x.acceptance*2.25}px;background:var(--blue)"><span>${x.acceptance}%</span></div><div class="bar" style="height:${chartContribution*110}px;background:var(--amber)"><span>${money(chartContribution)}</span></div><div class="bar-label">€${x.price.toFixed(2)}</div></div>`}).join('');renderFixedRecommendation();}
+ // Keep the overview and connected decision views anchored to the evidence-based
+ // recommendation. The controls remain intentionally local to the scenario builder.
+ function renderFixedRecommendation(){
+  const best=prices[1],bestContribution=.6*best.retailContribution+.4*best.onlineContribution;
+  $('recPrice').textContent=money(best.price);$('recExplain').textContent='€2.19 keeps acceptance above 50% while materially improving contribution versus the entry price. A blended launch lets LUMEN learn online and borrow credibility from premium shelves.';
+  $('overviewAcceptance').innerHTML='51.7% <small>acceptance</small>';$('overviewCac').innerHTML='€44 <small>blended CAC</small>';
+  $('acceptance').textContent='51.7%';$('contribution').textContent=money(bestContribution);$('ltvCac').textContent='3.2 : 1';$('payback').textContent='8.6 mo';
+  $('tradeoffTitle').textContent='€2.19 is the balance point.';$('tradeoffCopy').textContent='The premium price adds margin, but acceptance falls by almost half. The middle price protects demand while giving the business room to fund acquisition.';
+  $('scenarioCac').textContent='€44';
+  $('marketTitle').textContent='Start where the signal is strongest.';$('berlinScore').textContent='82';$('hamburgScore').textContent='76';$('munichScore').textContent='71';
+  $('berlinReason').textContent='Highest category density and strongest functional-beverage fit.';$('hamburgReason').textContent='Premium retail access and high repeat potential.';$('munichReason').textContent='Spending power is attractive, though competition is stronger.';
+  $('positioningTitle').textContent='Own the space between.';$('lumenPosition').innerHTML='LUMEN<span>€2.19</span>';
+  $('timingTitle').textContent='Launch in Q2, learn by Q3.';$('riskCopy').textContent='The main risk is scaling retail before online tests confirm repeat purchase and efficient CAC.';
+  $('priceChart').innerHTML=prices.map(x=>{const contribution=.6*x.retailContribution+.4*x.onlineContribution;return `<div class="bar-group"><div class="bar" style="height:${x.acceptance*2.25}px;background:var(--blue)"><span>${x.acceptance}%</span></div><div class="bar" style="height:${contribution*110}px;background:var(--amber)"><span>${money(contribution)}</span></div><div class="bar-label">€${x.price.toFixed(2)}</div></div>`}).join('');
+ }
  const controls=['priceSlider','mixSlider','budgetSlider','timingSelect'];
  function updateScenario(event){
   const id=event.target.id;
